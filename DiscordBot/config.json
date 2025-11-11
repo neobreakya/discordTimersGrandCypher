@@ -1,63 +1,8 @@
 {
   "token": "",
-  "channelId": "1428190892413550612",
+  "channelId": "",
   "updateInterval": 60000,
   "events": [
-    {
-      "name": "boss hunt",
-      "startTime": "01:30",
-      "duration": 720,
-      "days": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ]
-    },
-    {
-      "name": "test2",
-      "startTime": "17:13",
-      "duration": 2,
-      "days": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ]
-    },
-    {
-      "name": "test3",
-      "startTime": "17:13",
-      "duration": 4,
-      "days": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ]
-    },
-    {
-      "name": "test4",
-      "startTime": "17:11",
-      "duration": 6,
-      "days": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ]
-    }
+    
   ]
 }
