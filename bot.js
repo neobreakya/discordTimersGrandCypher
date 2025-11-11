@@ -1,4 +1,6 @@
 require('dotenv').config();
+console.log('TOKEN loaded:', process.env.TOKEN ? 'YES' : 'NO');
+console.log('TOKEN length:', process.env.TOKEN?.length);
 const {
   Client,
   GatewayIntentBits,
@@ -20,7 +22,7 @@ const configPath = path.join(__dirname, 'config.json');
 
 // Load or create configuration
 let CONFIG = {
-  token: process.env.BOT_TOKEN,
+  token: process.env.TOKEN,
   channelId: null,
   updateInterval: 60000,
   events: [],
@@ -28,7 +30,9 @@ let CONFIG = {
 };
 
 if (fs.existsSync(configPath)) {
-  CONFIG = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  const savedConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  // Merge saved config but keep the token from environment variable
+  CONFIG = { ...CONFIG, ...savedConfig, token: process.env.TOKEN };
 }
 
 function saveConfig() {
@@ -639,5 +643,13 @@ client.once('ready', async () => {
     );
   }
 });
-
+console.log(
+  'About to login with token from CONFIG:',
+  CONFIG.token ? 'EXISTS' : 'UNDEFINED'
+);
+console.log('CONFIG.token length:', CONFIG.token?.length);
+console.log(
+  'CONFIG.token === process.env.TOKEN?',
+  CONFIG.token === process.env.TOKEN
+);
 client.login(CONFIG.token);
