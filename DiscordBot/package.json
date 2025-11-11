@@ -1,0 +1,15 @@
+{
+  "name": "discord-timer-bot",
+  "version": "1.0.0",
+  "description": "Discord event timer bot",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.14.1"
+  }
+}
