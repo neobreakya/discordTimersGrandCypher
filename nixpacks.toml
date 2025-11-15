@@ -8,12 +8,3 @@ cmds = ['npm install']
 
 [start]
 cmd = 'node bot.js'
-```
-
----
-
-## Also create a Procfile (Railway fallback)
-
-Create a file called `Procfile` (no extension) in your project root:
-```
-web: node bot.js
