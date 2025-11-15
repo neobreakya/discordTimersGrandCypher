@@ -24,7 +24,7 @@ const configPath = path.join(__dirname, 'config.json');
 let CONFIG = {
   token: process.env.TOKEN,
   channelId: null,
-  updateInterval: 60000,
+  updateInterval: 900000, // 15 minutes
   events: [],
   userTimezones: {}, // Store user timezone offsets { userId: offsetHours }
 };
@@ -653,3 +653,4 @@ console.log(
   CONFIG.token === process.env.TOKEN
 );
 client.login(CONFIG.token);
+

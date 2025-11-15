@@ -1,7 +1,7 @@
 {
   "token": "",
   "channelId": "",
-  "updateInterval": 60000,
+  "updateInterval": 900000,
   "events": [
     
   ]
