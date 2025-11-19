@@ -2,7 +2,10 @@ const { Pool } = require('pg');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  ssl:
+    process.env.NODE_ENV === 'production'
+      ? { rejectUnauthorized: false }
+      : false,
 });
 
 async function initDatabase() {
@@ -17,6 +20,7 @@ async function initDatabase() {
         start_time VARCHAR(5) NOT NULL,
         duration INTEGER NOT NULL,
         days INTEGER[] NOT NULL,
+        channel_override VARCHAR(20),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(guild_id, name)
       )
@@ -49,22 +53,39 @@ async function initDatabase() {
   }
 }
 
+async function migrateDatabase() {
+  const client = await pool.connect();
+  try {
+    // Add channel_override column if it doesn't exist (for existing databases)
+    await client.query(`
+      ALTER TABLE events 
+      ADD COLUMN IF NOT EXISTS channel_override VARCHAR(20)
+    `);
+    console.log('✅ Database migration complete');
+  } catch (error) {
+    console.error('❌ Migration error:', error);
+  } finally {
+    client.release();
+  }
+}
+
 // Event functions
 async function saveEvent(guildId, event) {
   try {
     const query = `
-      INSERT INTO events (guild_id, name, start_time, duration, days)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO events (guild_id, name, start_time, duration, days, channel_override)
+      VALUES ($1, $2, $3, $4, $5, $6)
       ON CONFLICT (guild_id, name) 
-      DO UPDATE SET start_time = $3, duration = $4, days = $5
+      DO UPDATE SET start_time = $3, duration = $4, days = $5, channel_override = $6
       RETURNING *
     `;
     const result = await pool.query(query, [
-      guildId, 
-      event.name, 
-      event.startTime, 
-      event.duration, 
-      event.days
+      guildId,
+      event.name,
+      event.startTime,
+      event.duration,
+      event.days,
+      event.channelOverride || null,
     ]);
     return result.rows[0];
   } catch (error) {
@@ -79,11 +100,12 @@ async function getEvents(guildId) {
       'SELECT * FROM events WHERE guild_id = $1 ORDER BY name',
       [guildId]
     );
-    return result.rows.map(row => ({
+    return result.rows.map((row) => ({
       name: row.name,
       startTime: row.start_time,
       duration: row.duration,
-      days: row.days
+      days: row.days,
+      channelOverride: row.channel_override,
     }));
   } catch (error) {
     console.error('Error getting events:', error);
@@ -93,10 +115,10 @@ async function getEvents(guildId) {
 
 async function deleteEvent(guildId, eventName) {
   try {
-    await pool.query(
-      'DELETE FROM events WHERE guild_id = $1 AND name = $2',
-      [guildId, eventName]
-    );
+    await pool.query('DELETE FROM events WHERE guild_id = $1 AND name = $2', [
+      guildId,
+      eventName,
+    ]);
   } catch (error) {
     console.error('Error deleting event:', error);
     throw error;
@@ -163,11 +185,12 @@ async function getUserTimezone(userId) {
 
 module.exports = {
   initDatabase,
+  migrateDatabase,
   saveEvent,
   getEvents,
   deleteEvent,
   setServerChannel,
   getServerChannel,
   setUserTimezone,
-  getUserTimezone
+  getUserTimezone,
 };
